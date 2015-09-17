@@ -52,7 +52,7 @@ void dummy_help(){}
 /// Parse all command line entries and find valid options.
 bool get_opt(unsigned int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_, void (*help_)()/*=dummy_help*/){
 	unsigned int index = 1;
-	unsigned int previous_opt;
+	unsigned int previous_opt= 0;
 	bool need_an_argument = false;
 	bool may_have_argument = false;
 	bool is_valid_argument = false;
@@ -114,7 +114,7 @@ bool get_opt(unsigned int argc_, char **argv_, CLoption *options, unsigned int n
 				may_have_argument = false;
 			}
 			else{
-				std::cout << "\n Error: --" << options[previous_opt].alias << " [-" << options[previous_opt].opt << "] takes no argument\n";
+                            std::cout << "\n Error: --" << options[previous_opt].alias << " [-" << options[previous_opt].opt << "] takes no argument\n";
 				help_();
 				return false;			
 			}

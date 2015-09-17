@@ -134,11 +134,11 @@ int main(int argc, char **argv)
   size_t dataWords = 0;
 
   int commandCount = 0;
-  double startTime, aTime;
+  double startTime = 0, aTime;
   double clockTime = usGetTime(0); // this is the base time for our faux data
-  double spillTime, lastSpillTime, durSpill;
+  double spillTime, lastSpillTime = 0, durSpill;
   double parseTime, waitTime, readTime, sendTime, pollTime;
-  double lastData;
+  double lastData = 0;
   int currentPeak = 0;
   // convert from hertz to number of microseconds in between data dumps
   double deltaTime = 1. / rate * 1e6;
@@ -161,7 +161,7 @@ int main(int argc, char **argv)
 
   while (!isExiting) {
     // see if we have any commands from pacman
-    time_t curTime, prevTime;
+    time_t curTime, prevTime = 0;
     time(&curTime);
 
     // only update the display if the time has changed

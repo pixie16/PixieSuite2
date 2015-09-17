@@ -221,11 +221,11 @@ int main(int argc, char **argv)
   size_t dataWords = 0;
 
   int commandCount = 0;
-  double startTime;
-  double spillTime, lastSpillTime, durSpill;
+  double startTime = 0;
+  double spillTime, lastSpillTime = 0, durSpill;
   double parseTime, waitTime, readTime, sendTime, pollTime;
-  double lastStatsTime, statsTime = 0;
-  double lastHistoTime, histoTime = 0;
+  double lastStatsTime = 0, statsTime = 0;
+  double lastHistoTime = 0, histoTime = 0;
 
   typedef pair<unsigned int, unsigned int> chanid_t;
   map<chanid_t, PixieInterface::Histogram> histoMap;
@@ -269,7 +269,7 @@ int main(int argc, char **argv)
   read_again: cout << "Had some corrupt data, rereading!!" << endl;
   while (!isExiting) {
     // see if we have any commands from pacman
-    time_t curTime, prevTime;
+    time_t curTime = 0, prevTime = 0;
     time(&curTime);
 
     // only update the display if the time has changed

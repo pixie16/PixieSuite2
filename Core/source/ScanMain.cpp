@@ -83,9 +83,9 @@ void start_run_control(Unpacker *core_){
 
 				std::stringstream status;
 				if(!poll_server.Select(dummy)){
-					status << "\e[0;33m" << "[IDLE]" << "\e[0m" << " Waiting for a spill...";
-					terminal_->SetStatus(status.str());
-					continue; 
+                                    status << "\033[0;33m" << "[IDLE]" << "\033[0m" << " Waiting for a spill...";
+                                    terminal_->SetStatus(status.str());
+                                    continue; 
 				}
 
 				nBytes = poll_server.RecvMessage((char*)shm_data, 40008); // Read from the socket
@@ -94,7 +94,7 @@ void start_run_control(Unpacker *core_){
 				else if(nBytes < 8){
 					continue;
 				}
-				status << "\e[0;32m" << "[RECV] " << "\e[0m" << nBytes;
+				status << "\033[0;32m" << "[RECV] " << "\033[0m" << nBytes;
 				terminal_->SetStatus(status.str());
 
 				if(debug_mode){ std::cout << "debug: Received " << nBytes << " bytes from the network\n"; }
