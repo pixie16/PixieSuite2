@@ -14,6 +14,7 @@ class TGraph;
 class TH2F;
 class TF1;
 class TProfile;
+class TTree;
 
 class Oscilloscope : public Unpacker{
 	private:
@@ -50,6 +51,17 @@ class Oscilloscope : public Unpacker{
 	TGraph *graph; ///< The TGraph for plotting traces.
 	TH2F *hist; ///<The histogram containing the waveform frequencies.
 	TProfile *prof; ///<The profile of the average histogram.
+	
+	TCanvas *statsCanvas_;
+	TTree *fitTree_; ///<A tree containing waveform fit data.
+	struct FitData{
+		double amplitude;
+		double phase;
+		double beta;
+		double gamma;
+	};
+	FitData fitData_;
+	bool statsMode_; ///<The flag indicating that the fit data should be stored.
 
 	TF1 *paulauskasFunc; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
 	TF1 *paulauskasFuncText; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)

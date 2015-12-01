@@ -20,6 +20,7 @@
 #include "TFile.h"
 #include "TF1.h"
 #include "TProfile.h"
+#include "TTree.h"
 #include "TPaveStats.h"
 
 #define ADC_TIME_STEP 4 // ns
@@ -43,7 +44,10 @@ Oscilloscope::Oscilloscope(int mod /*= 0*/, int chan/*=0*/) :
 	fitHigh_(15),
 	delay_(2),
 	num_traces(0),
-	num_displayed(0)
+	num_displayed(0),
+	statsCanvas_(NULL),
+	fitTree_(NULL),
+	statsMode_(false)
 {
 	time(&last_trace);
 	
@@ -77,6 +81,9 @@ Oscilloscope::~Oscilloscope(){
 	delete graph;
 	delete hist;
 	delete paulauskasFunc;
+
+	delete fitTree_;
+	delete statsCanvas_;
 
 	// Call Unpacker::Close() to finish cleanup.
 	Close();
@@ -117,6 +124,8 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 		axisMax = 0;
 		axisMin = 1E9;
 	}
+
+	canvas->cd();
 	
 	//For a waveform pulse we use a graph.
 	if (numAvgWaveforms_ == 1) {
@@ -195,6 +204,22 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 		graph->Clone("trace")->Write();
 		f.Close();
 		saveFile_ = "";
+	}
+
+	if (statsMode_) {
+		fitData_.amplitude = paulauskasFunc->GetParameter("amplitude");
+		fitData_.phase = paulauskasFunc->GetParameter("phase");
+		fitData_.beta = paulauskasFunc->GetParameter("beta");
+		fitData_.gamma = paulauskasFunc->GetParameter("gamma");
+		fitTree_->Fill();
+
+		statsCanvas_->cd(1);
+		fitTree_->Draw("phase:amplitude");
+		statsCanvas_->cd(2);
+		fitTree_->Draw("beta:amplitude");
+		fitTree_->Draw("gamma:amplitude","","SAME");
+
+		statsCanvas_->Update();
 	}
 
 	num_displayed++;
@@ -397,6 +422,21 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 		else {
 			std::cout << message_head << "Invalid number of parameters to 'fit'\n";
 			std::cout << message_head << " -SYNTAX- fit <low> <high>\n";
+		}
+	}
+	else if (cmd_ == "stats") {
+		//Toggle the stats flag.
+		statsMode_ = !statsMode_;
+		if (statsMode_) {
+			if (!fitTree_) {
+				statsCanvas_ = new TCanvas("statsCanvas_","Fit Statistics");
+				statsCanvas_->DivideSquare(2);
+
+				fitTree_ = new TTree("fitTree","Tree containing fit data");
+				fitTree_->Branch("fitData",&fitData_,"amplitude/D:phase/D:beta/D:gamma/D");
+				fitTree_->Draw("amplitude:phase>>(1024,0,1,1024,0,1)","","GOFF");
+
+			}
 		}
 	}
 	else if (cmd_ == "avg") {
