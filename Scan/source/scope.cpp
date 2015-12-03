@@ -60,7 +60,6 @@ Oscilloscope::Oscilloscope(int mod /*= 0*/, int chan/*=0*/) :
 	
 	graph = new TGraph();
 	hist = new TH2F("hist","",256,0,1,256,0,1);
-	hist->SetBit(TH1::kCanRebin);
 
 	paulauskasFunc = new TF1("paulauskas",PaulauskasFitFunc,0,1,4);
 	paulauskasFuncText = new TF1("paulauskasText","[0] * exp(-(x - [1])*[2]) * (1 - exp(-pow((x-[1])*[3],4)))",4);
@@ -214,10 +213,11 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 		fitTree_->Fill();
 
 		statsCanvas_->cd(1);
-		fitTree_->Draw("phase:amplitude");
-		statsCanvas_->cd(2);
-		fitTree_->Draw("beta:amplitude");
-		fitTree_->Draw("gamma:amplitude","","SAME");
+		fitTree_->Draw("phase:amplitude>>hPhase(200,0,30000,200,0,500)","","COLZ");
+		statsCanvas_->cd(3);
+		fitTree_->Draw("beta:amplitude","","COLZ");
+		statsCanvas_->cd(4);
+		fitTree_->Draw("gamma:amplitude","","COLZ");
 
 		statsCanvas_->Update();
 	}
@@ -425,19 +425,17 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 		}
 	}
 	else if (cmd_ == "stats") {
-		//Toggle the stats flag.
-		statsMode_ = !statsMode_;
-		if (statsMode_) {
+		if (!statsMode_) { //We use the NOT flag as we have yet to switch the flag. (See below)
 			if (!fitTree_) {
 				statsCanvas_ = new TCanvas("statsCanvas_","Fit Statistics");
-				statsCanvas_->DivideSquare(2);
+				statsCanvas_->DivideSquare(4);
 
 				fitTree_ = new TTree("fitTree","Tree containing fit data");
 				fitTree_->Branch("fitData",&fitData_,"amplitude/D:phase/D:beta/D:gamma/D");
-				fitTree_->Draw("amplitude:phase>>(1024,0,1,1024,0,1)","","GOFF");
-
 			}
 		}
+		//Toggle the stats flag after we ensured everything is constructed.
+		statsMode_ = !statsMode_;
 	}
 	else if (cmd_ == "avg") {
 		if (args_.size() == 1) {
