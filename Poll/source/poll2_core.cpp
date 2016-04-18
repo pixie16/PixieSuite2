@@ -1651,6 +1651,8 @@ bool Poll::ReadFIFO() {
 
 	//We loop until the FIFO has reached the threshold for any module unless we are stopping and then we skip the loop.
 	for (unsigned int timeout = 0; timeout < POLL_TRIES; timeout++){ 
+		//Update the polling clock.
+      time(&pollClock);
 		//Check the FIFO size for every module
 		for (unsigned short mod=0; mod < n_cards; mod++) {
 			nWords[mod] = pif->CheckFIFOWords(mod);
@@ -1665,6 +1667,17 @@ bool Poll::ReadFIFO() {
 		force_spill = false;
 		//Number of data words read from the FIFO
 		size_t dataWords = 0;
+
+		if (insert_wall_clock) {
+			// add the "wall time" in artificially
+			size_t timeWordsNeeded = sizeof(time_t) / sizeof(word_t);
+			if ( (sizeof(time_t) % sizeof(word_t)) != 0 ) timeWordsNeeded++;
+			fifoData[dataWords++] = 2 + timeWordsNeeded;
+			fifoData[dataWords++] = clockVsn;
+			memcpy(&fifoData[dataWords], &pollClock, sizeof(time_t));
+			if (!is_quiet) std::cout << "Read " << timeWordsNeeded << " words for time to buffer position " << dataWords << std::endl;
+			dataWords += timeWordsNeeded;
+		}
 
 		//Loop over each module's FIFO
 		for (unsigned short mod=0;mod < n_cards; mod++) {

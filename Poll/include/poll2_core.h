@@ -240,6 +240,11 @@ class Poll{
 	/// Broadcast a data spill onto the network in the classic pacman format.
 	void broadcast_pac_data();
 
+	///The vsn of the artificially inserted wall time.	
+	static const word_t clockVsn = 1000;
+   time_t pollClock;
+
+
   public:
   	/// Default constructor.
 	Poll();
