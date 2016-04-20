@@ -24,5 +24,8 @@ if(USE_ROOT)
 	add_executable(filterer filterer.cpp)
 	target_link_libraries(filterer PixieScanStatic ${ROOT_LIBRARIES})
 	
-	install(TARGETS scope filterer DESTINATION bin)
+	add_executable(cfdtuner cfdtuner.cpp)
+	target_link_libraries(cfdtuner PixieScanStatic ${ROOT_LIBRARIES})
+
+	install(TARGETS scope filterer cfdtuner DESTINATION bin)
 endif()
