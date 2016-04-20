@@ -184,7 +184,7 @@ ScanMain::~ScanMain(){
 void ScanMain::RunControl(){
 	// Notify that we are starting run control.
 	run_ctrl_exit = false;
-	total_stopped = false;
+	start_scan();
 
 	// Set debug mode, if enabled.
 	if(debug_mode){
